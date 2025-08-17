@@ -1,0 +1,15 @@
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\bin\Debug\MMSProjekat.exe.config
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\bin\Debug\MMSProjekat.exe
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\bin\Debug\MMSProjekat.pdb
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.csproj.AssemblyReference.cache
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.MMSProjekat.resources
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.Properties.Resources.resources
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.csproj.GenerateResource.cache
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.csproj.CoreCompileInputs.cache
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.exe
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.pdb
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.exe.config
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.GaussianBlurWindow.resources
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.BlackLightWindow.resources
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.HistogramEqualizationWindow.resources
+C:\Users\ilici\Desktop\GitRepos\MMSProjekat\MMSProjekat\obj\Debug\MMSProjekat.MeanRemovalWindow.resources
