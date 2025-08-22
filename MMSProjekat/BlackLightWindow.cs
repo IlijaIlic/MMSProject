@@ -12,9 +12,18 @@ namespace MMSProjekat
 {
     public partial class BlackLightWindow : Form
     {
+        public int value { get; set; }
+
         public BlackLightWindow()
         {
             InitializeComponent();
+        }
+
+        private void btnBlackLightApply_Click(object sender, EventArgs e)
+        {
+            value = (int) nmrcBlacklight.Value;
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
     }
 }

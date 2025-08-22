@@ -12,9 +12,18 @@ namespace MMSProjekat
 {
     public partial class MeanRemovalWindow : Form
     {
+
+        public int value {  get; set; }
         public MeanRemovalWindow()
         {
             InitializeComponent();
+        }
+
+        private void btnMeanApply_Click(object sender, EventArgs e)
+        {
+            value = (int) nmrcMean.Value;
+            DialogResult = DialogResult.OK;
+            Close();
         }
     }
 }

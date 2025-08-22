@@ -39,25 +39,35 @@
             this.nmrcBlacklight.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.nmrcBlacklight.ForeColor = System.Drawing.Color.White;
             this.nmrcBlacklight.Location = new System.Drawing.Point(75, 65);
+            this.nmrcBlacklight.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
             this.nmrcBlacklight.Minimum = new decimal(new int[] {
-            50,
+            1,
             0,
             0,
-            -2147483648});
+            0});
             this.nmrcBlacklight.Name = "nmrcBlacklight";
             this.nmrcBlacklight.Size = new System.Drawing.Size(150, 20);
             this.nmrcBlacklight.TabIndex = 0;
+            this.nmrcBlacklight.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // lblBlackLight
             // 
             this.lblBlackLight.AutoSize = true;
             this.lblBlackLight.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.lblBlackLight.ForeColor = System.Drawing.Color.White;
-            this.lblBlackLight.Location = new System.Drawing.Point(72, 46);
+            this.lblBlackLight.Location = new System.Drawing.Point(56, 46);
             this.lblBlackLight.Name = "lblBlackLight";
-            this.lblBlackLight.Size = new System.Drawing.Size(135, 16);
+            this.lblBlackLight.Size = new System.Drawing.Size(191, 16);
             this.lblBlackLight.TabIndex = 1;
-            this.lblBlackLight.Text = "Unesite vrednost";
+            this.lblBlackLight.Text = "Unesite vrednost (1->7)";
             // 
             // btnBlackLightApply
             // 
@@ -73,6 +83,7 @@
             this.btnBlackLightApply.TabIndex = 2;
             this.btnBlackLightApply.Text = "Primeni";
             this.btnBlackLightApply.UseVisualStyleBackColor = false;
+            this.btnBlackLightApply.Click += new System.EventHandler(this.btnBlackLightApply_Click);
             // 
             // BlackLightWindow
             // 

@@ -47,17 +47,18 @@
             this.btnMeanApply.TabIndex = 0;
             this.btnMeanApply.Text = "Primeni";
             this.btnMeanApply.UseVisualStyleBackColor = false;
+            this.btnMeanApply.Click += new System.EventHandler(this.btnMeanApply_Click);
             // 
             // lblMeanRemoval
             // 
             this.lblMeanRemoval.AutoSize = true;
             this.lblMeanRemoval.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.lblMeanRemoval.ForeColor = System.Drawing.Color.White;
-            this.lblMeanRemoval.Location = new System.Drawing.Point(72, 46);
+            this.lblMeanRemoval.Location = new System.Drawing.Point(49, 46);
             this.lblMeanRemoval.Name = "lblMeanRemoval";
-            this.lblMeanRemoval.Size = new System.Drawing.Size(135, 16);
+            this.lblMeanRemoval.Size = new System.Drawing.Size(199, 16);
             this.lblMeanRemoval.TabIndex = 1;
-            this.lblMeanRemoval.Text = "Unesite vrednost";
+            this.lblMeanRemoval.Text = "Unesite vrednost (3->15)";
             // 
             // nmrcMean
             // 
@@ -65,14 +66,24 @@
             this.nmrcMean.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.nmrcMean.ForeColor = System.Drawing.Color.White;
             this.nmrcMean.Location = new System.Drawing.Point(75, 65);
+            this.nmrcMean.Maximum = new decimal(new int[] {
+            15,
+            0,
+            0,
+            0});
             this.nmrcMean.Minimum = new decimal(new int[] {
-            50,
+            3,
             0,
             0,
-            -2147483648});
+            0});
             this.nmrcMean.Name = "nmrcMean";
             this.nmrcMean.Size = new System.Drawing.Size(150, 22);
             this.nmrcMean.TabIndex = 2;
+            this.nmrcMean.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
             // 
             // MeanRemovalWindow
             // 
