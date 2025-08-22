@@ -54,6 +54,7 @@
     <Compile Include="BlackLightWindow.Designer.cs">
       <DependentUpon>BlackLightWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Filters.cs" />
     <Compile Include="GaussianBlurWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,6 +81,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadWriteFunc.cs" />
     <EmbeddedResource Include="BlackLightWindow.resx">
       <DependentUpon>BlackLightWindow.cs</DependentUpon>
     </EmbeddedResource>
