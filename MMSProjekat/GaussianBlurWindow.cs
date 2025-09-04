@@ -12,13 +12,21 @@ namespace MMSProjekat
 {
     public partial class GaussianBlurWindow : Form
     {
+        public double sigmaValue { get; set; }
+        public int kSizeValue { get; set; }
+
         public GaussianBlurWindow()
         {
             InitializeComponent();
         }
 
-        private void GaussianBlurWindow_Deactivate(object sender, EventArgs e)
+
+        private void btnGaussApply_Click(object sender, EventArgs e)
         {
+            sigmaValue = (double)nmrcSigma.Value;
+            kSizeValue = (int)nmrcGauss.Value;
+
+            DialogResult = DialogResult.OK;
             Close();
         }
     }

@@ -44,6 +44,7 @@ namespace MMSProjekat
             this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trckBarZoom = new System.Windows.Forms.TrackBar();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pctrBox)).BeginInit();
@@ -226,7 +227,8 @@ namespace MMSProjekat
             // 
             this.editToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undoToolStripMenuItem});
+            this.undoToolStripMenuItem,
+            this.undoListToolStripMenuItem});
             this.editToolStripMenuItem.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.editToolStripMenuItem.ForeColor = System.Drawing.Color.White;
             this.editToolStripMenuItem.Margin = new System.Windows.Forms.Padding(10, 3, 10, 3);
@@ -240,10 +242,18 @@ namespace MMSProjekat
             this.undoToolStripMenuItem.ForeColor = System.Drawing.Color.White;
             this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
             this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.undoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.undoToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
             this.undoToolStripMenuItem.Text = "Undo";
             this.undoToolStripMenuItem.ToolTipText = "Ctrl + Z";
             this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
+            // 
+            // undoListToolStripMenuItem
+            // 
+            this.undoListToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(23)))), ((int)(((byte)(23)))));
+            this.undoListToolStripMenuItem.ForeColor = System.Drawing.Color.White;
+            this.undoListToolStripMenuItem.Name = "undoListToolStripMenuItem";
+            this.undoListToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.undoListToolStripMenuItem.Text = "Undo/Redo Stack ->";
             // 
             // trckBarZoom
             // 
@@ -310,6 +320,7 @@ namespace MMSProjekat
         private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
         private System.Windows.Forms.TrackBar trckBarZoom;
         private System.Windows.Forms.PictureBox pctrBox;
+        private System.Windows.Forms.ToolStripMenuItem undoListToolStripMenuItem;
     }
 }
 

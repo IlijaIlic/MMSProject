@@ -39,7 +39,7 @@ namespace MMSProjekat
                         if (br.ReadByte() != 0xFF || br.ReadByte() != 0xC0)
                             throw new Exception("Missing SOF");
 
-                        /* BITMAP */
+                        /* BITMAPA */
                         byte[,] Y = new byte[width, height];
                         for (int x = 0; x < width; x++)
                             for (int y = 0; y < height; y++)
@@ -75,18 +75,22 @@ namespace MMSProjekat
                             {
                                 for (int y = 0; y < height; y++)
                                 {
-                                    byte Yv = Y[x, y];
-                                    byte Cbv = CbSmall[x / downFactor, y / downFactor];
-                                    byte Crv = CrSmall[x / downFactor, y / downFactor];
+                                    int cx = Math.Min(x / 2, cbW - 1);
+                                    int cy = Math.Min(y / 2, cbH - 1);
 
-                                    int r = (int)(Yv + 1.402 * (Crv - 128));
-                                    int g = (int)(Yv - 0.344136 * (Cbv - 128) - 0.714136 * (Crv - 128));
-                                    int b = (int)(Yv + 1.772 * (Cbv - 128));
+                                    byte CbVal = CbSmall[cx, cy];
+                                    byte CrVal = CrSmall[cx, cy];
+                                    byte YVal = Y[x, y]; 
+
+                                    int r = (int)(YVal + 1.402 * (CrVal - 128));
+                                    int g = (int)(YVal - 0.344136 * (CbVal - 128) - 0.714136 * (CrVal - 128));
+                                    int b = (int)(YVal + 1.772 * (CbVal - 128));
+
                                     byte* pixelPtr = ptr + y * stride + x * 3;
 
-                                    pixelPtr[2] = ClampByte(r);
-                                    pixelPtr[1] = ClampByte(g);
-                                    pixelPtr[0] = ClampByte(b);
+                                    pixelPtr[2] = GetNormalValue(r);
+                                    pixelPtr[1] = GetNormalValue(g);
+                                    pixelPtr[0] = GetNormalValue(b);
 
                                 }
                             }
@@ -119,7 +123,7 @@ namespace MMSProjekat
 
                 byte* ogPtr = (byte*)bitData.Scan0.ToPointer();
 
-                // RGB konverzija u YCbCr
+           
                 for (int x = 0; x < w; x++)
                 {
                     for (int y = 0; y < h; y++)
@@ -135,17 +139,16 @@ namespace MMSProjekat
                         double cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
                         double cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
 
-                        Y[x, y] = ReadWriteFunc.ClampByte(yy);
-                        Cb[x, y] = ReadWriteFunc.ClampByte(cb);
-                        Cr[x, y] = ReadWriteFunc.ClampByte(cr);
+                        Y[x, y] = ReadWriteFunc.GetNormalValue(yy);
+                        Cb[x, y] = ReadWriteFunc.GetNormalValue(cb);
+                        Cr[x, y] = ReadWriteFunc.GetNormalValue(cr);
                     }
                 }
             }
             bitmap.UnlockBits(bitData);
 
-            // Downsampling
-            int cbW = w / downFactor;
-            int cbH = h / downFactor;
+            int cbW = w / 2;
+            int cbH = h / 2;
 
             byte[,] CbSmall = new byte[cbW, cbH];
             byte[,] CrSmall = new byte[cbW, cbH];
@@ -154,8 +157,15 @@ namespace MMSProjekat
             {
                 for (int y = 0; y < cbH; y++)
                 {
-                    CbSmall[x, y] = Cb[x * downFactor, y * downFactor];
-                    CrSmall[x, y] = Cr[x * downFactor, y * downFactor];
+
+                    int srcX = x * 2;
+                    int srcY = y * 2;
+
+                    double newCb = (Cb[srcX, srcY] + Cb[srcX, srcY + 1]) / 2;
+                    double newCr = (Cr[srcX, srcY] + Cr[srcX, srcY + 1]) / 2;
+
+                    CbSmall[x, y] = (byte)newCb;
+                    CrSmall[x, y] = (byte)newCr;
                 }
             }
 
@@ -165,11 +175,11 @@ namespace MMSProjekat
                 {
                     using (var bWriter = new BinaryWriter(deflate))
                     {
-                        // START OF FILE
+                        /* FILE START */
                         bWriter.Write((byte)0xFF);
                         bWriter.Write((byte)0x33);
 
-                        // HEADER
+                        /* HEADER */
                         bWriter.Write((byte)0xFF);                          // 1
                         bWriter.Write((byte)0xE0);                          // 1
                                                                             //bWriter.Write((short)15);                         // 2 NIJE BITNO
@@ -180,11 +190,11 @@ namespace MMSProjekat
                                                                             //bWriter.Write((byte)3); // komponente             // 1 NIJE BITNO
                         bWriter.Write((byte)downFactor);                    // 1
                                                                             // 15
-                                                                            // START OF FRAME
+                        /* BITMAP START */                                                    // START OF FRAME
                         bWriter.Write((byte)0xFF);
                         bWriter.Write((byte)0xC0);
 
-                        // BITMAPA
+                        /* BITMAPA */
                         for (int x = 0; x < w; x++)
                             for (int y = 0; y < h; y++)
                                 bWriter.Write(Y[x, y]);
@@ -197,7 +207,7 @@ namespace MMSProjekat
                             for (int y = 0; y < cbH; y++)
                                 bWriter.Write(CrSmall[x, y]);
 
-                        // END OF FILE
+                        /* FILE END */
                         bWriter.Write((byte)0xFF);
                         bWriter.Write((byte)0xEF);
 
@@ -207,7 +217,7 @@ namespace MMSProjekat
         }
 
 
-        public static byte ClampByte(double v)
+        public static byte GetNormalValue(double v)
         {
             if (v < 0) return 0;
             if (v > 255) return 255;

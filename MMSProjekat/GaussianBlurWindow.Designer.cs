@@ -31,7 +31,10 @@
             this.lblGaussianBlur = new System.Windows.Forms.Label();
             this.nmrcGauss = new System.Windows.Forms.NumericUpDown();
             this.btnGaussApply = new System.Windows.Forms.Button();
+            this.lblSigma = new System.Windows.Forms.Label();
+            this.nmrcSigma = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.nmrcGauss)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nmrcSigma)).BeginInit();
             this.SuspendLayout();
             // 
             // lblGaussianBlur
@@ -39,26 +42,36 @@
             this.lblGaussianBlur.AutoSize = true;
             this.lblGaussianBlur.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblGaussianBlur.ForeColor = System.Drawing.Color.White;
-            this.lblGaussianBlur.Location = new System.Drawing.Point(72, 46);
+            this.lblGaussianBlur.Location = new System.Drawing.Point(17, 18);
             this.lblGaussianBlur.Name = "lblGaussianBlur";
-            this.lblGaussianBlur.Size = new System.Drawing.Size(135, 16);
+            this.lblGaussianBlur.Size = new System.Drawing.Size(263, 16);
             this.lblGaussianBlur.TabIndex = 0;
-            this.lblGaussianBlur.Text = "Unesite vrednost";
+            this.lblGaussianBlur.Text = "Unesite velicinu kernela (3->15)\r\n";
             // 
             // nmrcGauss
             // 
             this.nmrcGauss.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.nmrcGauss.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nmrcGauss.ForeColor = System.Drawing.Color.White;
-            this.nmrcGauss.Location = new System.Drawing.Point(75, 65);
+            this.nmrcGauss.Location = new System.Drawing.Point(117, 37);
+            this.nmrcGauss.Maximum = new decimal(new int[] {
+            15,
+            0,
+            0,
+            0});
             this.nmrcGauss.Minimum = new decimal(new int[] {
-            50,
+            3,
             0,
             0,
-            -2147483648});
+            0});
             this.nmrcGauss.Name = "nmrcGauss";
             this.nmrcGauss.Size = new System.Drawing.Size(150, 22);
             this.nmrcGauss.TabIndex = 1;
+            this.nmrcGauss.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
             // 
             // btnGaussApply
             // 
@@ -74,6 +87,49 @@
             this.btnGaussApply.TabIndex = 2;
             this.btnGaussApply.Text = "Primeni";
             this.btnGaussApply.UseVisualStyleBackColor = false;
+            this.btnGaussApply.Click += new System.EventHandler(this.btnGaussApply_Click);
+            // 
+            // lblSigma
+            // 
+            this.lblSigma.AutoSize = true;
+            this.lblSigma.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSigma.ForeColor = System.Drawing.Color.White;
+            this.lblSigma.Location = new System.Drawing.Point(17, 71);
+            this.lblSigma.Name = "lblSigma";
+            this.lblSigma.Size = new System.Drawing.Size(183, 16);
+            this.lblSigma.TabIndex = 3;
+            this.lblSigma.Text = "Unesite sigma (0.5->5)";
+            // 
+            // nmrcSigma
+            // 
+            this.nmrcSigma.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+            this.nmrcSigma.DecimalPlaces = 1;
+            this.nmrcSigma.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nmrcSigma.ForeColor = System.Drawing.Color.White;
+            this.nmrcSigma.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.nmrcSigma.Location = new System.Drawing.Point(117, 90);
+            this.nmrcSigma.Maximum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.nmrcSigma.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            65536});
+            this.nmrcSigma.Name = "nmrcSigma";
+            this.nmrcSigma.Size = new System.Drawing.Size(150, 22);
+            this.nmrcSigma.TabIndex = 4;
+            this.nmrcSigma.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            65536});
             // 
             // GaussianBlurWindow
             // 
@@ -81,6 +137,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(33)))), ((int)(((byte)(33)))));
             this.ClientSize = new System.Drawing.Size(284, 161);
+            this.Controls.Add(this.nmrcSigma);
+            this.Controls.Add(this.lblSigma);
             this.Controls.Add(this.btnGaussApply);
             this.Controls.Add(this.nmrcGauss);
             this.Controls.Add(this.lblGaussianBlur);
@@ -94,8 +152,8 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Gaussian Blur";
-            this.Deactivate += new System.EventHandler(this.GaussianBlurWindow_Deactivate);
             ((System.ComponentModel.ISupportInitialize)(this.nmrcGauss)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nmrcSigma)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -106,5 +164,7 @@
         private System.Windows.Forms.Label lblGaussianBlur;
         private System.Windows.Forms.NumericUpDown nmrcGauss;
         private System.Windows.Forms.Button btnGaussApply;
+        private System.Windows.Forms.Label lblSigma;
+        private System.Windows.Forms.NumericUpDown nmrcSigma;
     }
 }

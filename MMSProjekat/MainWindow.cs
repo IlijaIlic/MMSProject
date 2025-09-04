@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,10 +17,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 
 namespace MMSProjekat
 {
-    struct UndoStackItem{
-        Bitmap bm;
-        string name;
-    }
+
 
     public partial class MMSProjekat : Form
     {
@@ -27,13 +25,14 @@ namespace MMSProjekat
         public MMSProjekat()
         {
             InitializeComponent();
+            undoStack = new UndoStack();
         }
 
         private Bitmap imgBitmap;
         private Bitmap imgBitmapOriginal;
         private float zoomScale = 1f;
         private float baseScale;
-        private Queue<UndoStackItem> undoStack;
+        private UndoStack undoStack;
 
         private void btnGaussianBlur_Click(object sender, EventArgs e)
         {
@@ -42,18 +41,26 @@ namespace MMSProjekat
                 Owner = this,
                 StartPosition = FormStartPosition.CenterParent
             };
+
             gaussianBlurWindow.ShowDialog(this);
 
+            if (gaussianBlurWindow.DialogResult == DialogResult.OK)
+            {
+                Bitmap gaussianBitmap = (Bitmap)imgBitmap.Clone();
+                imgBitmap = Filters.GaussianBlur(gaussianBitmap, gaussianBlurWindow.kSizeValue, gaussianBlurWindow.sigmaValue);
+                pctrBox.Invalidate();
+
+                UndoStackItem uSI = new UndoStackItem((Bitmap)imgBitmap.Clone(), "Gaussian Blur");
+                ManageUndoStack(uSI);
+            }
         }
 
         private void btnBlackLight_Click(object sender, EventArgs e)
         {
-
             if (imgBitmap == null)
             {
                 return;
             }
-
             BlackLightWindow blckWindow = new BlackLightWindow()
             {
                 Owner = this,
@@ -63,19 +70,28 @@ namespace MMSProjekat
 
             if (blckWindow.DialogResult == DialogResult.OK)
             {
-                imgBitmap = Filters.BlackFilter(blckWindow.value, imgBitmap);
+                Bitmap blackBitmap = (Bitmap)imgBitmap.Clone();
+                imgBitmap = Filters.BlackFilter(blckWindow.value, blackBitmap);
                 pctrBox.Invalidate();
+                UndoStackItem uSI = new UndoStackItem((Bitmap)imgBitmap.Clone(), "Black Light");
+                ManageUndoStack(uSI);
             }
         }
 
         private void btnHistogramEqual_Click(object sender, EventArgs e)
         {
-            HistogramEqualizationWindow hstWindow = new HistogramEqualizationWindow()
+            if (imgBitmap == null)
             {
-                Owner = this,
-                StartPosition = FormStartPosition.CenterParent
-            };
-            hstWindow.ShowDialog(this);
+                return;
+            }
+
+            Bitmap histoBitmap = (Bitmap)imgBitmap.Clone();
+
+            imgBitmap = Filters.HistogramEqualization(histoBitmap);
+            pctrBox.Invalidate();
+
+            UndoStackItem uSI = new UndoStackItem((Bitmap)imgBitmap.Clone(), "Histogram Equalization");
+            ManageUndoStack(uSI);
         }
 
         private void btnMeanRemoval_Click(object sender, EventArgs e)
@@ -84,19 +100,22 @@ namespace MMSProjekat
             {
                 return;
             }
-
             MeanRemovalWindow meanWindow = new MeanRemovalWindow()
             {
                 Owner = this,
                 StartPosition = FormStartPosition.CenterParent
             };
+
             meanWindow.ShowDialog(this);
 
             if (meanWindow.DialogResult == DialogResult.OK)
             {
-                Filters.MeanRemove(meanWindow.value, imgBitmap);
+                Bitmap meanBitmap = (Bitmap)imgBitmap.Clone();
+                imgBitmap = Filters.MeanRemove(meanWindow.value, meanBitmap);
 
                 pctrBox.Invalidate();
+                UndoStackItem uSI = new UndoStackItem((Bitmap)imgBitmap.Clone(), "Histogram Equalization");
+                ManageUndoStack(uSI);
             }
 
         }
@@ -114,17 +133,27 @@ namespace MMSProjekat
                     {
                         Image img = Image.FromFile(dialog.FileName);
                         imgBitmap = (Bitmap)img;
-                        imgBitmapOriginal = (Bitmap)imgBitmap.Clone();
 
+                        undoStack.Clear();
+                        imgBitmapOriginal = (Bitmap)imgBitmap.Clone();
+                        UndoStackItem usi = new UndoStackItem((Bitmap)imgBitmapOriginal.Clone(), "Original Image");
+                        undoStack.PushToStack(usi);
                     }
                     else
                     {
                         imgBitmap = ReadWriteFunc.Read(dialog);
+
+                        undoStack.Clear();
                         imgBitmapOriginal = (Bitmap)imgBitmap.Clone();
+                        UndoStackItem usi = new UndoStackItem((Bitmap)imgBitmapOriginal.Clone(), "Original Image");
+                        undoStack.PushToStack(usi);
                     }
                     float scaleX = (float)pctrBox.Width / imgBitmap.Width;
                     float scaleY = (float)pctrBox.Height / imgBitmap.Height;
                     baseScale = Math.Min(scaleX, scaleY);
+
+                    ManageUndoList();
+
 
                 }
                 zoomScale = 1f; // zoom reset
@@ -185,9 +214,11 @@ namespace MMSProjekat
                     {
 
                         case 1: // .jpeg
+                            imgBitmap.Save(dialog.FileName, ImageFormat.Jpeg);
                             break;
 
                         case 2: // .png
+                            imgBitmap.Save(dialog.FileName, ImageFormat.Png);
                             break;
 
                         case 3: // .ilij
@@ -201,15 +232,73 @@ namespace MMSProjekat
 
         }
 
-
-
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (imgBitmapOriginal != null)
+            if (imgBitmap != null)
             {
-                imgBitmap = (Bitmap)imgBitmapOriginal.Clone();
-                pctrBox.Invalidate();
+                if (undoStack.GetIndex() > 0)
+                {
+                    undoStack.SetIndex(undoStack.GetIndex() - 1);
+                    ManageUndoList();
+
+                    imgBitmap = undoStack.GetFromIndexPos().GetBitmap();
+                    pctrBox.Invalidate();
+                }
             }
         }
+
+        private void ManageUndoList()
+        {
+
+            undoListToolStripMenuItem.DropDownItems.Clear(); // clear old items
+
+            for (int i = 0; i < undoStack.GetList().Count; i++)
+            {
+                int index = i;
+                var item = undoStack.GetList()[i];
+
+
+                ToolStripMenuItem menuItem = new ToolStripMenuItem($"Step {i}: {item.GetFilterName()}");
+
+
+                menuItem.ForeColor = Color.White;
+                menuItem.BackColor = Color.FromArgb(255, 22, 22, 22);
+
+                menuItem.Tag = item;
+
+                menuItem.Click += (sender, e) =>
+                {
+                    ToolStripMenuItem clickedItem = sender as ToolStripMenuItem;
+                    UndoStackItem undoItem = clickedItem.Tag as UndoStackItem;
+
+                    UndoTo(undoItem, index);
+                };
+
+
+                undoListToolStripMenuItem.DropDownItems.Add(menuItem);
+            }
+        }
+        private void ManageUndoStack(UndoStackItem uSI)
+        {
+
+            if (undoStack.GetIndex() + 1 != undoStack.GetList().Count)
+            {
+                undoStack.AddNewFilterToStack(uSI);
+            }
+            else
+            {
+                undoStack.PushToStack(uSI);
+            }
+            ManageUndoList();
+        }
+
+        private void UndoTo(UndoStackItem uSI, int i)
+        {
+            undoStack.SetIndex(i);
+            imgBitmap = (Bitmap)uSI.GetBitmap().Clone();
+
+            pctrBox.Invalidate();
+        }
+
     }
 }
