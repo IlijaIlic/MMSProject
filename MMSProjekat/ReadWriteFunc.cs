@@ -18,87 +18,85 @@ namespace MMSProjekat
         {
             using (var fs = File.Open(dialog.FileName, FileMode.Open))
             {
-                using (var deflate = new DeflateStream(fs, CompressionMode.Decompress))
+                using (var br = new BinaryReader(fs))
                 {
-                    using (var br = new BinaryReader(deflate))
+                    /* FILE START */
+                    if (br.ReadByte() != 0xFF || br.ReadByte() != 0x33)
+                        throw new Exception("Nepoznat tip fajla!");
+
+                    /* HEADER START */
+                    if (br.ReadByte() != 0xFF || br.ReadByte() != 0xE0)
+                        throw new Exception("Problem sa headerom!");
+                    /* HEADER */
+                    string ident = Encoding.ASCII.GetString(br.ReadBytes(5));
+                    int width = br.ReadUInt16();
+                    int height = br.ReadUInt16();
+                    byte downFactor = br.ReadByte();
+
+                    /* BITMAP START */
+                    if (br.ReadByte() != 0xFF || br.ReadByte() != 0xC0)
+                        throw new Exception("Missing SOF");
+
+                    /* BITMAPA */
+                    byte[,] Y = new byte[width, height];
+                    for (int x = 0; x < width; x++)
+                        for (int y = 0; y < height; y++)
+                            Y[x, y] = br.ReadByte();
+
+                    int cbW = width / downFactor;
+                    int cbH = height / downFactor;
+                    byte[,] CbSmall = new byte[cbW, cbH];
+                    byte[,] CrSmall = new byte[cbW, cbH];
+
+                    for (int x = 0; x < cbW; x++)
+                        for (int y = 0; y < cbH; y++)
+                            CbSmall[x, y] = br.ReadByte();
+
+                    for (int x = 0; x < cbW; x++)
+                        for (int y = 0; y < cbH; y++)
+                            CrSmall[x, y] = br.ReadByte();
+
+                    /* FILE END */
+                    if (br.ReadByte() != 0xFF || br.ReadByte() != 0xEF)
+                        throw new Exception("Missing EOI");
+
+                    Bitmap bmp = new Bitmap(width, height);
+                    Rectangle velicina = new Rectangle(0, 0, width, height);
+                    BitmapData bmpData = bmp.LockBits(velicina, ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+                    int stride = bmpData.Stride;
+
+                    unsafe
                     {
-                        /* FILE START */
-                        if (br.ReadByte() != 0xFF || br.ReadByte() != 0x33)
-                            throw new Exception("Nepoznat tip fajla!");
+                        byte* ptr = (byte*)bmpData.Scan0.ToPointer();
 
-                        /* HEADER START */
-                        if (br.ReadByte() != 0xFF || br.ReadByte() != 0xE0)
-                            throw new Exception("Problem sa headerom!");
-                        /* HEADER */
-                        string ident = Encoding.ASCII.GetString(br.ReadBytes(5));
-                        int width = br.ReadUInt16();
-                        int height = br.ReadUInt16();
-                        byte downFactor = br.ReadByte();
-
-                        /* BITMAP START */
-                        if (br.ReadByte() != 0xFF || br.ReadByte() != 0xC0)
-                            throw new Exception("Missing SOF");
-
-                        /* BITMAPA */
-                        byte[,] Y = new byte[width, height];
                         for (int x = 0; x < width; x++)
-                            for (int y = 0; y < height; y++)
-                                Y[x, y] = br.ReadByte();
-
-                        int cbW = width / downFactor;
-                        int cbH = height / downFactor;
-                        byte[,] CbSmall = new byte[cbW, cbH];
-                        byte[,] CrSmall = new byte[cbW, cbH];
-
-                        for (int x = 0; x < cbW; x++)
-                            for (int y = 0; y < cbH; y++)
-                                CbSmall[x, y] = br.ReadByte();
-
-                        for (int x = 0; x < cbW; x++)
-                            for (int y = 0; y < cbH; y++)
-                                CrSmall[x, y] = br.ReadByte();
-
-                        /* FILE END */
-                        if (br.ReadByte() != 0xFF || br.ReadByte() != 0xEF)
-                            throw new Exception("Missing EOI");
-
-                        Bitmap bmp = new Bitmap(width, height);
-                        Rectangle velicina = new Rectangle(0, 0, width, height);
-                        BitmapData bmpData = bmp.LockBits(velicina, ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-                        int stride = bmpData.Stride;
-
-                        unsafe
                         {
-                            byte* ptr = (byte*)bmpData.Scan0.ToPointer();
-
-                            for (int x = 0; x < width; x++)
+                            for (int y = 0; y < height; y++)
                             {
-                                for (int y = 0; y < height; y++)
-                                {
-                                    int cx = Math.Min(x / 2, cbW - 1);
-                                    int cy = Math.Min(y / 2, cbH - 1);
+                                int cx = Math.Min(x / 2, cbW - 1);
+                                int cy = Math.Min(y / 2, cbH - 1);
 
-                                    byte CbVal = CbSmall[cx, cy];
-                                    byte CrVal = CrSmall[cx, cy];
-                                    byte YVal = Y[x, y]; 
+                                byte CbVal = CbSmall[cx, cy];
+                                byte CrVal = CrSmall[cx, cy];
+                                byte YVal = Y[x, y];
 
-                                    int r = (int)(YVal + 1.402 * (CrVal - 128));
-                                    int g = (int)(YVal - 0.344136 * (CbVal - 128) - 0.714136 * (CrVal - 128));
-                                    int b = (int)(YVal + 1.772 * (CbVal - 128));
+                                int r = (int)(YVal + 1.402 * (CrVal - 128));
+                                int g = (int)(YVal - 0.344136 * (CbVal - 128) - 0.714136 * (CrVal - 128));
+                                int b = (int)(YVal + 1.772 * (CbVal - 128));
 
-                                    byte* pixelPtr = ptr + y * stride + x * 3;
+                                byte* pixelPtr = ptr + y * stride + x * 3;
 
-                                    pixelPtr[2] = GetNormalValue(r);
-                                    pixelPtr[1] = GetNormalValue(g);
-                                    pixelPtr[0] = GetNormalValue(b);
+                                pixelPtr[2] = GetNormalValue(r);
+                                pixelPtr[1] = GetNormalValue(g);
+                                pixelPtr[0] = GetNormalValue(b);
 
-                                }
                             }
                         }
-                        bmp.UnlockBits(bmpData);
-                        return bmp;
                     }
+                    bmp.UnlockBits(bmpData);
+                    return bmp;
                 }
+
             }
         }
 
@@ -123,7 +121,7 @@ namespace MMSProjekat
 
                 byte* ogPtr = (byte*)bitData.Scan0.ToPointer();
 
-           
+
                 for (int x = 0; x < w; x++)
                 {
                     for (int y = 0; y < h; y++)
@@ -171,48 +169,47 @@ namespace MMSProjekat
 
             using (var fs = File.Open(dialog.FileName, FileMode.Create))
             {
-                using (var deflate = new DeflateStream(fs, CompressionMode.Compress))
+
+                using (var bWriter = new BinaryWriter(fs))
                 {
-                    using (var bWriter = new BinaryWriter(deflate))
-                    {
-                        /* FILE START */
-                        bWriter.Write((byte)0xFF);
-                        bWriter.Write((byte)0x33);
+                    /* FILE START */
+                    bWriter.Write((byte)0xFF);
+                    bWriter.Write((byte)0x33);
 
-                        /* HEADER */
-                        bWriter.Write((byte)0xFF);                          // 1
-                        bWriter.Write((byte)0xE0);                          // 1
-                                                                            //bWriter.Write((short)15);                         // 2 NIJE BITNO
-                        bWriter.Write(Encoding.ASCII.GetBytes("ILIJ\0"));   // 5
+                    /* HEADER */
+                    bWriter.Write((byte)0xFF);                          // 1
+                    bWriter.Write((byte)0xE0);                          // 1
+                                                                        //bWriter.Write((short)15);                         // 2 NIJE BITNO
+                    bWriter.Write(Encoding.ASCII.GetBytes("ILIJ\0"));   // 5
 
-                        bWriter.Write((ushort)w);                           // 2
-                        bWriter.Write((ushort)h);                           // 2
-                                                                            //bWriter.Write((byte)3); // komponente             // 1 NIJE BITNO
-                        bWriter.Write((byte)downFactor);                    // 1
-                                                                            // 15
-                        /* BITMAP START */                                                    // START OF FRAME
-                        bWriter.Write((byte)0xFF);
-                        bWriter.Write((byte)0xC0);
+                    bWriter.Write((ushort)w);                           // 2
+                    bWriter.Write((ushort)h);                           // 2
+                                                                        //bWriter.Write((byte)3); // komponente             // 1 NIJE BITNO
+                    bWriter.Write((byte)downFactor);                    // 1
+                                                                        // 15
+                    /* BITMAP START */                                                    // START OF FRAME
+                    bWriter.Write((byte)0xFF);
+                    bWriter.Write((byte)0xC0);
 
-                        /* BITMAPA */
-                        for (int x = 0; x < w; x++)
-                            for (int y = 0; y < h; y++)
-                                bWriter.Write(Y[x, y]);
+                    /* BITMAPA */
+                    for (int x = 0; x < w; x++)
+                        for (int y = 0; y < h; y++)
+                            bWriter.Write(Y[x, y]);
 
-                        for (int x = 0; x < cbW; x++)
-                            for (int y = 0; y < cbH; y++)
-                                bWriter.Write(CbSmall[x, y]);
+                    for (int x = 0; x < cbW; x++)
+                        for (int y = 0; y < cbH; y++)
+                            bWriter.Write(CbSmall[x, y]);
 
-                        for (int x = 0; x < cbW; x++)
-                            for (int y = 0; y < cbH; y++)
-                                bWriter.Write(CrSmall[x, y]);
+                    for (int x = 0; x < cbW; x++)
+                        for (int y = 0; y < cbH; y++)
+                            bWriter.Write(CrSmall[x, y]);
 
-                        /* FILE END */
-                        bWriter.Write((byte)0xFF);
-                        bWriter.Write((byte)0xEF);
+                    /* FILE END */
+                    bWriter.Write((byte)0xFF);
+                    bWriter.Write((byte)0xEF);
 
-                    }
                 }
+
             }
         }
 
